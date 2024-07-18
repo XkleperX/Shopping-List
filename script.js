@@ -17,17 +17,43 @@ function createItem(e) {
     alert('This item is already there');
     return;
   }
+
+  addItemToDOM(value);
+  addItemToStorage(value);
+
+  updateUI();
+
+  formInput.value = '';
+}
+
+function addItemToDOM(item) {
   const li = document.createElement('li');
-  li.appendChild(document.createTextNode(value));
+  li.appendChild(document.createTextNode(item));
 
   const button = createButton('remove-item btn-link text-red');
   li.appendChild(button);
 
   // Append the li to the list 
   list.appendChild(li);
-  updateUI();
+}
 
-  formInput.value = '';
+function addItemToStorage(item) {
+
+  let itemsFormStorage;
+
+  // The items refer as a key 
+  if (localStorage.getItem('items') === null) {
+    itemsFormStorage = [];
+  } else {
+    // There are two method of JSON the first is parse and the other Stringify
+    itemsFormStorage = JSON.parse(localStorage.getItem('items'));
+  }
+
+  itemsFormStorage.push(item);
+
+  const stringItems = JSON.stringify(itemsFormStorage);
+
+  localStorage.setItem('items', stringItems);
 }
 
 // Function to check for duplicate items
