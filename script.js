@@ -3,12 +3,12 @@ const formInput = document.getElementById('item-input');
 const list = document.getElementById('item-list');
 const clearBtn = document.querySelector('.btn-clear');
 const filter = document.querySelector('.filter');
-
+const formBtn = form.querySelector('button');
+let editMode = false;
 // Display items form storage 
 function displayItem() {
   const itemsFormStorage = getItemFromStorage();
   itemsFormStorage.forEach(item => { addItemToDOM(item); });
-
   updateUI();
 }
 
@@ -27,25 +27,35 @@ function createItem(e) {
     return;
   }
 
+  if (editMode) {
+    const itemToEdit = list.querySelector('li');
+    removeItemFromStorage(itemToEdit.textContent);
+    itemToEdit.style.color = '#000';
+    itemToEdit.remove();
+    editMode = false;
+  }
+
   addItemToDOM(value);
   addItemToStorage(value);
-
-  updateUI();
-
   formInput.value = '';
+  updateUI();
 }
+
+// Function to check for duplicate items
+function isDuplicate(value) {
+  const items = list.querySelectorAll('li');
+  for (let item of items) {
+    if (item.textContent === value) {
+      return true;
+    }
+  }
+  return false;
+}
+
 
 // Add item to the local storage
 function addItemToStorage(item) {
   const itemsFormStorage = getItemFromStorage();
-
-  // The items refer as a key 
-  if (localStorage.getItem('items') === null) {
-    itemsFormStorage = [];
-  } else {
-    // There are two method of JSON the first is parse and the other Stringify
-    itemsFormStorage = JSON.parse(localStorage.getItem('items'));
-  }
 
   itemsFormStorage.push(item);
 
@@ -64,19 +74,7 @@ function getItemFromStorage() {
     // There are two method of JSON the first is parse and the other Stringify
     itemsFormStorage = JSON.parse(localStorage.getItem('items'));
   }
-
   return itemsFormStorage;
-}
-
-// Function to check for duplicate items
-function isDuplicate(value) {
-  const items = list.querySelectorAll('li');
-  for (let item of items) {
-    if (item.textContent === value) {
-      return true;
-    }
-  }
-  return false;
 }
 
 // Create button for item
@@ -116,7 +114,25 @@ function onClickItem(e) {
     // item you want to remove
     const item = e.target.parentElement.parentElement;
     removeItem(item);
+  } else {
+    setItemToUpdate(e.target);
   }
+}
+
+function setItemToUpdate(item) {
+  editMode = true;
+  // or you could add like class to the item and remove it by classlist.remove 
+  list.querySelectorAll('li').forEach(i => i.style.color = '#000');
+  item.style.color = '#cfcfcf';
+
+  updateBtn();
+  formInput.value = item.textContent;
+}
+
+function updateBtn() {
+  formBtn.innerHTML = '<i class ="fa-solid fa-pen"></i> Update Item';
+  formBtn.style.backgroundColor = 'green';
+
 }
 
 // Remove item from the list and the storage
@@ -138,7 +154,7 @@ function removeItemFromStorage(item) {
 
   itemsFormStorage = itemsFormStorage.filter((i) => i !== item);
 
-  localStorage.setItem('items',JSON.stringify(itemsFormStorage))
+  localStorage.setItem('items', JSON.stringify(itemsFormStorage));
 }
 
 
@@ -147,6 +163,9 @@ function clearItems(e) {
   while (list.firstChild) {
     list.removeChild(list.firstChild);
   }
+
+  // Clear form localStorage
+  localStorage.removeItem('items');
   updateUI();
 }
 
@@ -157,14 +176,9 @@ function filterItems(e) {
 
   list.forEach((item) => {
     const itemText = item.innerText.toLowerCase();
+    // or flex instead of ''
+    item.style.display = itemText.includes(text) ? '' : 'none';
 
-    if (itemText.includes(text)) {
-      // item.style.display = 'flex';
-      // or  
-      item.style.display = '';
-    } else {
-      item.style.display = 'none';
-    }
   });
 }
 
@@ -178,6 +192,9 @@ function updateUI() {
     clearBtn.style.display = 'block';
     filter.style.display = 'block';
   }
+  formBtn.innerHTML = '<i class="fa-solid fa-plus"></i> Add Item';
+  formBtn.style.backgroundColor = '#333';
+  editMode = false;
 }
 
 
