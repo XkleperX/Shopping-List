@@ -2,13 +2,14 @@ const form = document.getElementById('item-form');
 const formInput = document.getElementById('item-input');
 const list = document.getElementById('item-list');
 const clearBtn = document.querySelector('.btn-clear');
-const filter = document.querySelector('.filter');
+const filter = document.querySelector('.filter input');
 const formBtn = form.querySelector('button');
 let editMode = false;
-// Display items form storage 
+
+// Display items from storage 
 function displayItem() {
-  const itemsFormStorage = getItemFromStorage();
-  itemsFormStorage.forEach(item => { addItemToDOM(item); });
+  const itemsFromStorage = getItemFromStorage();
+  itemsFromStorage.forEach(item => { addItemToDOM(item); });
   updateUI();
 }
 
@@ -52,29 +53,28 @@ function isDuplicate(value) {
   return false;
 }
 
-
-// Add item to the local storage
+// Add item to local storage
 function addItemToStorage(item) {
-  const itemsFormStorage = getItemFromStorage();
+  const itemsFromStorage = getItemFromStorage();
 
-  itemsFormStorage.push(item);
+  itemsFromStorage.push(item);
 
-  const stringItems = JSON.stringify(itemsFormStorage);
+  const stringItems = JSON.stringify(itemsFromStorage);
 
   localStorage.setItem('items', stringItems);
 }
 
 function getItemFromStorage() {
-  let itemsFormStorage;
+  let itemsFromStorage;
 
   // The items refer as a key 
   if (localStorage.getItem('items') === null) {
-    itemsFormStorage = [];
+    itemsFromStorage = [];
   } else {
-    // There are two method of JSON the first is parse and the other Stringify
-    itemsFormStorage = JSON.parse(localStorage.getItem('items'));
+    // There are two methods of JSON: parse and stringify
+    itemsFromStorage = JSON.parse(localStorage.getItem('items'));
   }
-  return itemsFormStorage;
+  return itemsFromStorage;
 }
 
 // Create button for item
@@ -108,10 +108,9 @@ function addItemToDOM(item) {
   updateUI();
 }
 
-
 function onClickItem(e) {
   if (e.target.parentElement.classList.contains('remove-item')) {
-    // item you want to remove
+    // Item you want to remove
     const item = e.target.parentElement.parentElement;
     removeItem(item);
   } else {
@@ -121,7 +120,7 @@ function onClickItem(e) {
 
 function setItemToUpdate(item) {
   editMode = true;
-  // or you could add like class to the item and remove it by classlist.remove 
+  // Or you could add a class to the item and remove it with classList.remove 
   list.querySelectorAll('li').forEach(i => i.style.color = '#000');
   item.style.color = '#cfcfcf';
 
@@ -130,19 +129,17 @@ function setItemToUpdate(item) {
 }
 
 function updateBtn() {
-  formBtn.innerHTML = '<i class ="fa-solid fa-pen"></i> Update Item';
+  formBtn.innerHTML = '<i class="fa-solid fa-pen"></i> Update Item';
   formBtn.style.backgroundColor = 'green';
-
 }
 
-// Remove item from the list and the storage
+// Remove item from the list and storage
 function removeItem(item) {
-  // Remove item form the DOM 
+  // Remove item from the DOM 
   if (confirm('Are you sure?')) {
     item.remove();
 
-
-    // Remove item from the Storage
+    // Remove item from storage
     removeItemFromStorage(item.textContent);
 
     updateUI();
@@ -150,13 +147,12 @@ function removeItem(item) {
 }
 
 function removeItemFromStorage(item) {
-  let itemsFormStorage = getItemFromStorage();
+  let itemsFromStorage = getItemFromStorage();
 
-  itemsFormStorage = itemsFormStorage.filter((i) => i !== item);
+  itemsFromStorage = itemsFromStorage.filter((i) => i !== item);
 
-  localStorage.setItem('items', JSON.stringify(itemsFormStorage));
+  localStorage.setItem('items', JSON.stringify(itemsFromStorage));
 }
-
 
 // Remove all items
 function clearItems(e) {
@@ -164,31 +160,31 @@ function clearItems(e) {
     list.removeChild(list.firstChild);
   }
 
-  // Clear form localStorage
+  // Clear from local storage
   localStorage.removeItem('items');
+
+  // Clear filter input
+  filter.value = '';
+
   updateUI();
 }
 
-// Filter the items
+// Filter items
 function filterItems(e) {
   const text = e.target.value.toLowerCase();
-  const list = document.querySelectorAll('li');
+  const items = document.querySelectorAll('li');
 
-  list.forEach((item) => {
+  items.forEach((item) => {
     const itemText = item.innerText.toLowerCase();
-    // or flex instead of ''
     item.style.display = itemText.includes(text) ? '' : 'none';
-
   });
 }
-
 
 function updateUI() {
   if (list.firstElementChild === null) {
     clearBtn.style.display = 'none';
     filter.style.display = 'none';
-  }
-  else {
+  } else {
     clearBtn.style.display = 'block';
     filter.style.display = 'block';
   }
@@ -197,9 +193,7 @@ function updateUI() {
   editMode = false;
 }
 
-
-
-// Event listener 
+// Event listeners 
 form.addEventListener('submit', createItem);
 list.addEventListener('click', onClickItem);
 clearBtn.addEventListener('click', clearItems);
